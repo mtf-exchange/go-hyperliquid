@@ -2,6 +2,7 @@ package hyperliquid
 
 import (
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -39,6 +40,12 @@ func InfoOptDebugMode() InfoOpt {
 	}
 }
 
+func InfoOptProxyUrl(proxyUrl *url.URL) InfoOpt {
+	return func(i *Info) {
+		i.clientOpts = append(i.clientOpts, clientOptProxyUrl(proxyUrl))
+	}
+}
+
 func ExchangeOptDebugMode() ExchangeOpt {
 	return func(e *Exchange) {
 		e.debug = true
@@ -53,6 +60,12 @@ func clientOptDebugMode() ClientOpt {
 			lol.WithWriter(os.Stderr),
 			lol.WithEnv(lol.EnvDev),
 		)
+	}
+}
+
+func clientOptProxyUrl(proxyUrl *url.URL) ClientOpt {
+	return func(c *client) {
+		c.proxyUrl = proxyUrl
 	}
 }
 

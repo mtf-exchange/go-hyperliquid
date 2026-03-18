@@ -9,8 +9,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"net/url"
+	"time"
 
+	"github.com/corpix/uarand"
 	"github.com/sonirico/vago/lol"
 )
 
@@ -28,6 +32,7 @@ type client struct {
 	debug      bool
 	baseURL    string
 	httpClient *http.Client
+	proxyUrl   *url.URL
 }
 
 func newClient(baseURL string, opts ...ClientOpt) *client {
@@ -44,6 +49,26 @@ func newClient(baseURL string, opts ...ClientOpt) *client {
 		opt.Apply(cli)
 	}
 
+	cli.httpClient.Transport = &http.Transport{
+		Proxy: http.ProxyURL(cli.proxyUrl),
+		DialContext: (&net.Dialer{
+			Timeout:   10 * time.Second,
+			KeepAlive: 60 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          3000,
+		MaxIdleConnsPerHost:   300,
+		MaxConnsPerHost:       300,
+		IdleConnTimeout:       120 * time.Second,
+		TLSHandshakeTimeout:   5 * time.Second,
+		ExpectContinueTimeout: 500 * time.Millisecond,
+		ResponseHeaderTimeout: 30 * time.Second,
+		DisableKeepAlives:     false,
+		DisableCompression:    false,
+		WriteBufferSize:       32 * 1024,
+		ReadBufferSize:        32 * 1024,
+	}
 	return cli
 }
 
@@ -66,6 +91,7 @@ func (c *client) post(ctx context.Context, path string, payload any) ([]byte, er
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", uarand.GetRandom())
 
 	if c.debug {
 		c.logger.WithFields(lol.Fields{

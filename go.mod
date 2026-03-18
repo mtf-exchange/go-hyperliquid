@@ -21,6 +21,7 @@ require (
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.0 // indirect
 	github.com/consensys/gnark-crypto v0.19.0 // indirect
+	github.com/corpix/uarand v0.2.0 // indirect
 	github.com/crate-crypto/go-eth-kzg v1.4.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
