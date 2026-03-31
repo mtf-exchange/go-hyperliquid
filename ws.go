@@ -280,6 +280,11 @@ func (w *WebsocketClient) readPump(ctx context.Context) {
 		case <-w.done:
 			return
 		default:
+			if w.conn == nil {
+				time.Sleep(200 * time.Millisecond)
+				continue
+			}
+
 			if err := w.conn.SetReadDeadline(time.Now().Add(w.readTimeout)); err != nil {
 				w.logErrf("websocket set read deadline: %v", err)
 				return
